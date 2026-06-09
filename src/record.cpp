@@ -35,7 +35,7 @@ constexpr int DAQ_BUFFER_SIZE = 5000;
 
 const std::string ROOT_DIR = "/home/hela/Desktop/ft_libbarrett";
 const std::string DATA_DIR = ROOT_DIR + "/data";
-const std::string CAL_PATH = ROOT_DIR + "/cal/FT9235/FT9235.cal";
+const std::string CAL_PATH = ROOT_DIR + "/cal/FT9236/FT9236.cal";
 
 std::atomic<bool> running{true};
 std::atomic<bool> recording{false};
@@ -400,7 +400,7 @@ int main()
 {
     std::signal(SIGINT, signalHandler);
 
-    const std::string channelString = "Dev1/ai0:5";
+    const std::string channelString = "Dev2/ai16:21";
 
     TaskHandle taskHandle = nullptr;
 

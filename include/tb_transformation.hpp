@@ -101,11 +101,11 @@ protected:
 
         // Force part
         baseFT_.template segment<3>(0) =
-            R_BE * ft_tool.template segment<3>(0);
+            R_BE.transpose() * ft_tool.template segment<3>(0);
 
         // Torque/moment part
         baseFT_.template segment<3>(3) =
-            R_BE * ft_tool.template segment<3>(3);
+            R_BE.transpose() * ft_tool.template segment<3>(3);
 
         baseFTOutputValue->setData(&baseFT_);
     }

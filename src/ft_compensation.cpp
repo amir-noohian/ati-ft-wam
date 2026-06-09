@@ -40,6 +40,10 @@ int wam_main(int argc, char** argv,
         "Dev2/ai16:21"
     );
 
+    ATIFTSplitterSystem<DOF> splitter(
+        pm.getExecutionManager()
+    );
+
     ToolOrientationOutput<DOF> toolOrientation(
         pm.getExecutionManager(),
         wam
@@ -57,6 +61,11 @@ int wam_main(int argc, char** argv,
     BaseFTToJointTorque<DOF> baseFTToJointTorque(
         pm.getExecutionManager()
     );
+
+    barrett::systems::ToolForceToJointTorques<DOF> tf2jt;
+
+    barrett::systems::Gain<jt_type, double> gain(-1.0);
+
 
     barrett::systems::connect(
         ftSensor.ftOutput,
@@ -78,6 +87,20 @@ int wam_main(int argc, char** argv,
         baseFTToJointTorque.baseFTInput
     );
 
+    barrett::systems::connect(
+        ftSensor.ftOutput,
+        splitter.ftInput
+    );
+
+    barrett::systems::connect(
+        splitter.forceOutput,
+        tf2jt.input
+    );
+
+    barrett::systems::connect(wam.kinematicsBase.kinOutput, tf2jt.kinInput);
+
+    barrett::systems::connect(tf2jt.output, gain.input);
+    
 
     barrett::systems::PrintToStream<ft_type> printSensorFT(
         pm.getExecutionManager(),
@@ -94,6 +117,11 @@ int wam_main(int argc, char** argv,
         "Joint Torque from FT: "
     );
 
+    barrett::systems::PrintToStream<jt_type> printJointTorquetf2ft(
+        pm.getExecutionManager(),
+        "Joint Torque from tf2ft: "
+    );
+
     barrett::systems::PrintToStream<jt_type> printWamjtSum(
         pm.getExecutionManager(),
         "wam.jtSum: "
@@ -107,6 +135,7 @@ int wam_main(int argc, char** argv,
     barrett::systems::connect(ftSensor.ftOutput, printSensorFT.input);
     barrett::systems::connect(toolFTToBaseFT.baseFTOutput, printBaseFT.input);
     barrett::systems::connect(baseFTToJointTorque.jointTorqueOutput, printJointTorque.input);
+    barrett::systems::connect(tf2jt.output, printJointTorquetf2ft.input);
     barrett::systems::connect(wam.jtSum.output, printWamjtSum.input);
     barrett::systems::connect(wam.gravity.output, printGravity.input);
 
@@ -160,6 +189,7 @@ int wam_main(int argc, char** argv,
                 //     wam.input
                 // );
                 wam.trackReferenceSignal(baseFTToJointTorque.jointTorqueOutput);
+                // wam.trackReferenceSignal(gain.output);
 
                 ftFeedbackEnabled = true;
                 std::cout << "FT joint-torque feedback ENABLED.\n";

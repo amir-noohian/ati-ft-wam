@@ -61,4 +61,65 @@ private:
     DISALLOW_COPY_AND_ASSIGN(ATIFTSystem);
 };
 
+
+template <size_t DOF>
+class ATIFTSplitterSystem : public barrett::systems::System {
+    BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+    typedef typename barrett::math::Vector<6>::type sf_type;
+
+public:
+    Input<sf_type> ftInput;
+
+    Output<cf_type> forceOutput;
+    Output<ct_type> torqueOutput;
+
+protected:
+    typename Output<cf_type>::Value* forceOutputValue;
+    typename Output<ct_type>::Value* torqueOutputValue;
+
+public:
+    explicit ATIFTSplitterSystem(
+        barrett::systems::ExecutionManager* em,
+        const std::string& sysName = "ATIFTSplitterSystem"
+    )
+        : barrett::systems::System(sysName),
+          ftInput(this),
+          forceOutput(this, &forceOutputValue),
+          torqueOutput(this, &torqueOutputValue)
+    {
+        if (em != NULL) {
+            em->startManaging(*this);
+        }
+    }
+
+    virtual ~ATIFTSplitterSystem()
+    {
+        this->mandatoryCleanUp();
+    }
+
+protected:
+    cf_type force;
+    ct_type torque;
+
+    virtual void operate()
+    {
+        const sf_type& ft = ftInput.getValue();
+
+        force[0] = ft[0];
+        force[1] = -ft[1];
+        force[2] = ft[2];
+
+        torque[0] = ft[3];
+        torque[1] = ft[4];
+        torque[2] = ft[5];
+
+        forceOutputValue->setData(&force);
+        torqueOutputValue->setData(&torque);
+    }
+
+private:
+    DISALLOW_COPY_AND_ASSIGN(ATIFTSplitterSystem);
+};
+
+
 #endif

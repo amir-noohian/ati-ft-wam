@@ -115,9 +115,9 @@ int main()
     std::signal(SIGINT, signalHandler);
 
     const std::string calPath =
-        "/home/hela/Desktop/ATIFT/cal/FT9235/FT9235.cal";
+        "/home/hela/Desktop/ATIFT/cal/FT9236/FT9236.cal";
 
-    const std::string channelString = "Dev2/ai0:5";
+    const std::string channelString = "Dev2/ai16:21";
 
     try {
         Matrix6x6 calibrationMatrix = loadAtiCalibration(calPath);
