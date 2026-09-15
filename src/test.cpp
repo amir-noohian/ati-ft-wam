@@ -208,7 +208,7 @@ int main()
             Vector6 ft = multiplyMatrixVector(calibrationMatrix, netVoltage);
 
             std::cout << "\r\033[K"
-                      << "FT9235 | "
+                      << "FT9236 | "
                       << "Fx: " << ft[0] << " N | "
                       << "Fy: " << ft[1] << " N | "
                       << "Fz: " << ft[2] << " N || "

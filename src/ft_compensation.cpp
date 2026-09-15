@@ -23,6 +23,8 @@ int wam_main(int argc, char** argv,
              barrett::ProductManager& pm,
              barrett::systems::Wam<DOF>& wam)
 {
+    wam.gravityCompensate();
+    
     BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
     typedef typename barrett::math::Vector<6>::type ft_type;
@@ -140,7 +142,7 @@ int wam_main(int argc, char** argv,
     barrett::systems::connect(wam.gravity.output, printGravity.input);
 
 
-    wam.gravityCompensate();
+
 
     barrett::systems::Ramp time(
         pm.getExecutionManager(),

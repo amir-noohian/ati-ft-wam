@@ -106,7 +106,7 @@ protected:
         const sf_type& ft = ftInput.getValue();
 
         force[0] = ft[0];
-        force[1] = -ft[1];
+        force[1] = ft[1];
         force[2] = ft[2];
 
         torque[0] = ft[3];

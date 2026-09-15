@@ -22,7 +22,7 @@ int wam_main(int argc, char** argv,
     typedef boost::tuple<double, cf_type> ft_sample_type;
 
     const std::string calPath =
-        "/home/hela/Desktop/ft_libbarrett/cal/FT9235/FT9235.cal";
+        "/home/hela/Desktop/ft_libbarrett/cal/FT9236/FT9236.cal";
 
     const std::string logFile =
         "/home/hela/Desktop/ft_libbarrett/data/ft_libbarrett_log.csv";
@@ -30,7 +30,7 @@ int wam_main(int argc, char** argv,
     ATIFTSystem ftSensor(
         pm.getExecutionManager(),
         calPath,
-        "Dev2/ai0:5"
+        "Dev2/ai16:21"
     );
 
     // Optional print
@@ -39,7 +39,7 @@ int wam_main(int argc, char** argv,
         "FT: "
     );
 
-    // barrett::systems::connect(ftSensor.ftOutput, printFT.input);
+    barrett::systems::connect(ftSensor.ftOutput, printFT.input);
 
     // Libbarrett time signal
     barrett::systems::Ramp time(

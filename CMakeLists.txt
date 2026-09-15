@@ -91,3 +91,20 @@ add_ati_program(test)
 add_ati_program(record)
 add_ati_program(test_ft_system)
 add_ati_program(ft_compensation)
+add_ati_program(ft_link4_compensation)
+
+# Separate sensor mounting file, read at runtime; independent of WAM configuration.
+set_property(TARGET ft_link4_compensation APPEND PROPERTY COMPILE_DEFINITIONS
+    LINK4_SENSOR_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/config/link4_sensor.conf")
+
+# Separate regular-Jacobian null-space case; previous executables are retained.
+add_ati_program(ft_link4_nullspace)
+set_property(TARGET ft_link4_nullspace APPEND PROPERTY COMPILE_DEFINITIONS
+    LINK4_SENSOR_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/config/link4_sensor.conf"
+    LINK4_NULLSPACE_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/config/link4_nullspace.conf")
+
+# Sensor torque plus end-effector wrench remapping, separate from prior cases.
+add_ati_program(ft_link4_wrench_sum)
+set_property(TARGET ft_link4_wrench_sum APPEND PROPERTY COMPILE_DEFINITIONS
+    LINK4_SENSOR_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/config/link4_sensor.conf"
+    LINK4_WRENCH_SUM_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/config/link4_wrench_sum.conf")

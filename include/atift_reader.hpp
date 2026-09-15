@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 class ATIFTReader {
 public:
@@ -18,8 +20,7 @@ public:
     ATIFTReader(
         const std::string& calPath,
         const std::string& channelString = "Dev2/ai16:21",
-        double samplingFrequency = 500.0,
-        int tareSamples = 500
+        int tareSamples = 100
     )
         : taskHandle_(nullptr)
     {
@@ -40,18 +41,21 @@ public:
         );
         checkDaqError(error);
 
-        error = DAQmxCfgSampClkTiming(
-            taskHandle_,
-            "",
-            samplingFrequency,
-            DAQmx_Val_Rising,
-            DAQmx_Val_ContSamps,
-            5000
-        );
-        checkDaqError(error);
+        /*
+         * Important:
+         * No DAQmxCfgSampClkTiming here.
+         * This makes it closer to the Python version.
+         */
 
         error = DAQmxStartTask(taskHandle_);
         checkDaqError(error);
+
+        /*
+         * Same idea as Python:
+         * time.sleep(2)
+         * then read tare samples.
+         */
+        std::this_thread::sleep_for(std::chrono::seconds(2));
 
         bias_ = computeBias(tareSamples);
     }
@@ -81,6 +85,10 @@ public:
             nullptr
         );
         checkDaqError(error);
+
+        if (samplesRead <= 0) {
+            throw std::runtime_error("No samples read from ATI F/T sensor.");
+        }
 
         Vector6 netVoltage{};
 
@@ -142,11 +150,19 @@ private:
             double scale = 1.0;
             axis->QueryDoubleAttribute("scale", &scale);
 
+            if (scale == 0.0) {
+                throw std::runtime_error("Calibration scale cannot be zero.");
+            }
+
             std::stringstream ss(valuesText);
 
             for (int col = 0; col < 6; ++col) {
                 double value = 0.0;
-                ss >> value;
+
+                if (!(ss >> value)) {
+                    throw std::runtime_error("Could not parse calibration matrix value.");
+                }
+
                 matrix[row][col] = value / scale;
             }
 
@@ -177,6 +193,10 @@ private:
 
     Vector6 computeBias(int tareSamples)
     {
+        if (tareSamples <= 0) {
+            throw std::runtime_error("tareSamples must be positive.");
+        }
+
         std::vector<double> tareData(6 * tareSamples);
         int32 samplesRead = 0;
 
@@ -191,6 +211,10 @@ private:
             nullptr
         );
         checkDaqError(error);
+
+        if (samplesRead <= 0) {
+            throw std::runtime_error("No samples read during ATI F/T tare.");
+        }
 
         Vector6 bias{};
 
